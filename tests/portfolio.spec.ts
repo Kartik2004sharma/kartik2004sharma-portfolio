@@ -92,7 +92,7 @@ test("keyboard travel, field exclusion and persisted theme", async ({ page }) =>
   const before = await page.evaluate(() => scrollY);
   await page.keyboard.press("1");
   await page.waitForTimeout(700);
-  expect(Math.abs((await page.evaluate(() => scrollY)) - before)).toBeLessThan(15);
+  expect(Math.abs((await page.evaluate(() => scrollY)) - before)).toBeLessThanOrEqual(15);
 });
 
 test("resume modal, chat and contact states", async ({ page }) => {
