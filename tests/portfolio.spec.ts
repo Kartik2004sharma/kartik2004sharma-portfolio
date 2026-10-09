@@ -10,11 +10,11 @@ test.beforeEach(async ({ page }) => {
 test("loader, hero, navigation and responsive shell", async ({ page }) => {
   await expect(page.getByTestId("loader")).toBeVisible();
   await expect(page.getByTestId("progress-block")).toHaveCount(12);
-  await expect(page.getByTestId("loader")).toBeHidden({ timeout: 3000 });
+  await expect(page.getByTestId("loader")).toHaveCount(0, { timeout: 3000 });
   await expect(page.getByRole("heading", { name: "Kartik Sharma" })).toBeVisible();
   await expect(page.getByRole("link", { name: "Explore My Work" })).toBeVisible();
   await expect(page.getByRole("link", { name: "Get in Touch" })).toBeVisible();
-  await expect(page.getByRole("button", { name: /résumé/i })).toBeVisible();
+  await expect(page.getByRole("button", { name: /resume/i })).toBeVisible();
   await expect(page.locator(".inventory-slot")).toHaveCount(7);
   const overflow = await page.evaluate(() => document.documentElement.scrollWidth - document.documentElement.clientWidth);
   expect(overflow).toBeLessThanOrEqual(1);
@@ -53,7 +53,7 @@ test("navigation reaches each section and fixed controls preserve page position"
   }
   const before = await page.evaluate(() => scrollY);
   await page.getByRole("button", { name: /Switch to night mode/ }).click();
-  await page.getByRole("button", { name: "Open villager chat" }).click();
+  await page.getByRole("button", { name: "Open portfolio guide" }).click();
   await page.getByRole("button", { name: "Projects", exact: true }).click();
   await expect(page.locator(".chat-history")).toContainText("Nexora");
   await page.getByRole("button", { name: "Close chat" }).click();
@@ -69,6 +69,7 @@ test("pixel pointer stays under the mouse while clicking", async ({ page }) => {
   await page.mouse.move(size.width - 80, size.height - 160);
   const cursor = page.locator(".pixel-cursor");
   await expect(cursor).toBeVisible();
+  await expect(cursor.locator("i")).toHaveCount(0);
   const before = await cursor.boundingBox();
   await page.mouse.down();
   await expect(cursor).toHaveClass(/click/);
@@ -96,8 +97,9 @@ test("keyboard travel, field exclusion and persisted theme", async ({ page }) =>
 
 test("resume modal, chat and contact states", async ({ page }) => {
   await expect(page.getByTestId("loader")).toBeHidden({ timeout: 3000 });
-  await page.getByRole("button", { name: /résumé/i }).click();
+  await page.getByRole("button", { name: /resume/i }).click();
   await expect(page.getByRole("dialog")).toBeVisible();
+  await expect(page.getByRole("heading", { name: "Kartik Sharma · Resume" })).toHaveCSS("font-family", /Inter/);
   await expect(page.locator("body")).toHaveClass(/modal-open/);
   await expect(page.locator(".resume-document img")).toBeVisible();
   await expect.poll(() => page.locator(".resume-document img").evaluate((img: HTMLImageElement) => img.naturalWidth)).toBeGreaterThan(0);
@@ -109,7 +111,8 @@ test("resume modal, chat and contact states", async ({ page }) => {
   await expect(page.getByRole("link", { name: "Download PDF", exact: true })).toBeFocused();
   await page.keyboard.press("Escape");
   await expect(page.getByRole("dialog")).toBeHidden();
-  await page.getByRole("button", { name: "Open villager chat" }).click();
+  await page.getByRole("button", { name: "Open portfolio guide" }).click();
+  await expect(page.locator(".chat-panel")).toHaveScreenshot("portfolio-guide.png", { animations: "disabled" });
   await page.getByRole("button", { name: "Projects", exact: true }).click();
   await expect(page.locator(".chat-history")).toContainText("CardFi", { timeout: 1500 });
   await page.getByRole("button", { name: "Close chat" }).click();
@@ -127,7 +130,8 @@ test("resume modal, chat and contact states", async ({ page }) => {
 });
 
 test("links are safe and page has no serious automated accessibility violations", async ({ page }) => {
-  await expect(page.getByTestId("loader")).toBeHidden({ timeout: 3000 });
+  await expect(page.getByTestId("loader")).toHaveCount(0, { timeout: 3000 });
+  await expect(page.locator(".hero-content > div").last()).toHaveCSS("opacity", "1", { timeout: 3000 });
   const external = page.locator('a[target="_blank"]');
   for (let index = 0; index < await external.count(); index++) await expect(external.nth(index)).toHaveAttribute("rel", /noreferrer/);
   const results = await new AxeBuilder({ page }).analyze();

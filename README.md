@@ -11,7 +11,7 @@ npm run dev
 
 Copy `.env.example` to `.env.local` and add a Resend API key plus verified sender to enable contact-form delivery. Without those values, the form safely offers a direct-email fallback.
 
-The résumé PDF and its browser-safe preview are already included in `public/`.
+The resume PDF and its browser-safe preview are already included in `public/`.
 
 ## Verification
 

@@ -1,6 +1,6 @@
 "use client";
 
-import { AnimatePresence, motion, useReducedMotion } from "motion/react";
+import { AnimatePresence, LazyMotion, domAnimation, m, useReducedMotion } from "motion/react";
 import Image from "next/image";
 import { FormEvent, useCallback, useEffect, useRef, useState } from "react";
 import { profile } from "@/data/profile";
@@ -19,19 +19,19 @@ function Loader({ onDone }: { onDone: () => void }) {
   const [progress, setProgress] = useState(0);
   useEffect(() => {
     if (reduce) return onDone();
-    const blocks = Array.from({ length: 12 }, (_, index) => window.setTimeout(() => setProgress(index + 1), 150 + index * 90));
-    const done = window.setTimeout(onDone, 1500);
+    const blocks = Array.from({ length: 12 }, (_, index) => window.setTimeout(() => setProgress(index + 1), 35 + index * 30));
+    const done = window.setTimeout(onDone, 450);
     return () => { blocks.forEach(clearTimeout); clearTimeout(done); };
   }, [onDone, reduce]);
   if (reduce) return null;
   return (
-    <motion.div data-testid="loader" className="loader" exit={{ opacity: 0 }} transition={{ duration: 0.5, ease: "easeInOut" }}>
+    <m.div data-testid="loader" className="loader" exit={{ opacity: 0 }} transition={{ duration: 0.2, ease: "easeInOut" }}>
       <div className="grass-cube" aria-hidden="true"><span /></div>
       <p>GENERATING WORLD…</p>
       <div className="loader-track" aria-label={`Loading ${progress} of 12`}>
         {Array.from({ length: 12 }, (_, index) => <span data-testid="progress-block" className={index < progress ? "filled" : ""} key={index} />)}
       </div>
-    </motion.div>
+    </m.div>
   );
 }
 
@@ -136,12 +136,12 @@ function ResumeModal({ open, close }: { open: boolean; close: () => void }) {
   }, [close, open]);
   return (
     <AnimatePresence>{open && (
-      <motion.div className="modal-backdrop" onMouseDown={(event) => event.target === event.currentTarget && close()} initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}>
-        <motion.div ref={modalRef} className="resume-modal" role="dialog" aria-modal="true" aria-labelledby="resume-title" initial={{ opacity: 0, y: 24, scale: 0.97 }} animate={{ opacity: 1, y: 0, scale: 1 }} transition={{ duration: 0.2 }}>
-          <header><h2 id="resume-title">Kartik Sharma · Résumé</h2><button ref={closeRef} onClick={close} aria-label="Close résumé">×</button></header>
-          {profile.resumeUrl ? <><div className="resume-actions"><a href={profile.resumeUrl} download>Download PDF</a><a href={profile.resumeUrl} target="_blank" rel="noreferrer">Open PDF in new tab</a></div><div className="resume-document"><Image src="/resume-preview.png" alt="Kartik Sharma cybersecurity résumé. Open or download the PDF for selectable text." width={1273} height={1800} /></div></> : <div className="resume-placeholder"><span>📜</span><p>Résumé scroll arriving soon.</p><small>The PDF will appear here before launch.</small></div>}
-        </motion.div>
-      </motion.div>
+      <m.div className="modal-backdrop" onMouseDown={(event) => event.target === event.currentTarget && close()} initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}>
+        <m.div ref={modalRef} className="resume-modal" role="dialog" aria-modal="true" aria-labelledby="resume-title" initial={{ opacity: 0, y: 24, scale: 0.97 }} animate={{ opacity: 1, y: 0, scale: 1 }} transition={{ duration: 0.2 }}>
+          <header><h2 id="resume-title">Kartik Sharma · Resume</h2><button ref={closeRef} onClick={close} aria-label="Close resume">×</button></header>
+          {profile.resumeUrl ? <><div className="resume-actions"><a href={profile.resumeUrl} download>Download PDF</a><a href={profile.resumeUrl} target="_blank" rel="noreferrer">Open PDF in new tab</a></div><div className="resume-document"><Image src="/resume-preview.png" alt="Kartik Sharma cybersecurity resume. Open or download the PDF for selectable text." width={1273} height={1800} /></div></> : <div className="resume-placeholder"><span>📜</span><p>Resume coming soon.</p><small>The PDF will appear here before launch.</small></div>}
+        </m.div>
+      </m.div>
     )}</AnimatePresence>
   );
 }
@@ -159,7 +159,7 @@ function PixelCursor() {
     addEventListener("mousemove", move); addEventListener("mousedown", down); addEventListener("mouseup", up);
     return () => { document.documentElement.classList.remove("pixel-cursor-ready"); removeEventListener("mousemove", move); removeEventListener("mousedown", down); removeEventListener("mouseup", up); };
   }, []);
-  return <div className="pixel-cursor" ref={cursorRef} aria-hidden="true"><svg viewBox="0 0 32 38" shapeRendering="crispEdges"><path d="M3 2v27l7-7 5 12 6-3-6-11h11z" /></svg><i /></div>;
+  return <div className="pixel-cursor" ref={cursorRef} aria-hidden="true"><svg viewBox="0 0 32 38" shapeRendering="crispEdges"><path d="M3 2v27l7-7 5 12 6-3-6-11h11z" /></svg></div>;
 }
 
 const chatAnswers = [
@@ -172,42 +172,39 @@ const chatAnswers = [
 ];
 
 function GuideAvatar() {
-  return <svg className="guide-avatar" viewBox="0 0 32 40" shapeRendering="crispEdges" aria-hidden="true">
-    <path fill="#492619" d="M12 26h8v2h5v8h-4v4h-5v-5h-1v5h-5v-4H7v-8h5z" />
-    <path fill="#ffe4a2" d="M12 27h8v2h3v5h-3v4h-3v-5h-3v5h-3v-4H9v-5h3z" />
-    <path fill="#ee761d" d="M14 28h4v4h-4z" /><path fill="#633020" d="M15 28h2v4h-2z" />
-    <path fill="#8c321b" d="M7 13H5v3H3v8h2v3h4v2h14v-2h4v-3h2v-8h-2v-3H7z" />
-    <path fill="#ff8d24" d="M6 15h20v11H6z" />
-    <path fill="#ffe4a2" d="M9 15h14v1h3v8h-2v2H8v-2H6v-8h3z" />
-    <path fill="#39251f" d="M10 19h3v4h-3zm10 0h3v4h-3zm-5 5h4v1h-4z" />
-    <path fill="#fff9df" d="M10 19h1v1h-1zm10 0h1v1h-1z" />
-    <path fill="#f5966b" d="M8 23h3v2H8zm14 0h3v2h-3z" />
-    <path fill="#df4f13" d="M6 14v-4h3V7h3V4h3V0h2v4h3v4h3V6h2v5h2v4z" />
-    <path fill="#ff9926" d="M9 14v-4h3V8h3V4h2v5h3v3h3v-2h2v4z" />
-    <path fill="#ffe45c" d="M12 14v-3h3V8h2v4h3v2z" />
+  return <svg className="guide-avatar" viewBox="0 0 40 40" shapeRendering="crispEdges" aria-hidden="true">
+    <path fill="#d94a17" d="M9 16v-5h4V7h4V2h4v7h4V6h3v6h4v7H8v-3z" />
+    <path fill="#ff8f1f" d="M13 16v-4h4V7h3v7h3v-4h3v6h3v4H11v-4z" />
+    <path fill="#ffd84c" d="M17 17v-4h3v-3h2v6h3v4h-8z" />
+    <path fill="#5a241b" d="M8 17h24v4h3v12h-3v4H8v-4H5V21h3z" />
+    <path fill="#ffad45" d="M9 18h22v3h3v11h-3v4H9v-4H6V21h3z" />
+    <path fill="#ffe8bd" d="M11 20h18v2h3v9h-3v3H11v-3H8v-9h3z" />
+    <path fill="#32211f" d="M12 24h4v5h-4zm12 0h4v5h-4zm-7 7h6v2h-6z" />
+    <path fill="#fff" d="M13 24h1v2h-1zm12 0h1v2h-1z" />
+    <path fill="#f49a86" d="M9 29h4v2H9zm18 0h4v2h-4z" />
   </svg>;
 }
 
 function VillagerChat() {
   const [open, setOpen] = useState(false);
   const [input, setInput] = useState("");
-  const [messages, setMessages] = useState([{ from: "villager", text: "Greetings, traveler! Ask me about Kartik’s work, projects, or skills." }]);
+  const [messages, setMessages] = useState([{ from: "guide", text: "Hi! Ask me about Kartik’s work, projects, skills, or experience." }]);
   const [typing, setTyping] = useState(false);
   const ask = (question: string) => {
     if (!question.trim() || typing) return;
     setMessages((current) => [...current, { from: "user", text: question.trim() }]); setInput(""); setTyping(true);
     const normalized = question.toLowerCase();
     const answer = chatAnswers.find((item) => item.keywords.some((keyword) => normalized.includes(keyword)))?.answer ?? "I know about Kartik’s experience, skills, projects, education, certifications, and contact details.";
-    window.setTimeout(() => { setMessages((current) => [...current, { from: "villager", text: answer }]); setTyping(false); }, 550);
+    window.setTimeout(() => { setMessages((current) => [...current, { from: "guide", text: answer }]); setTyping(false); }, 550);
   };
   return <>
-    <button className="villager-button" onClick={() => setOpen((value) => !value)} aria-label={`${open ? "Close" : "Open"} villager chat`} aria-expanded={open}><GuideAvatar /></button>
-    <AnimatePresence>{open && <motion.aside className="chat-panel" aria-label="Ask the portfolio villager" initial={{ opacity: 0, y: 16, scale: 0.97 }} animate={{ opacity: 1, y: 0, scale: 1 }} exit={{ opacity: 0, y: 16, scale: 0.97 }} transition={{ duration: 0.18 }}>
-      <header><div className="villager-face"><GuideAvatar /></div><div><strong>Guide Villager</strong><small><i /> Online · local knowledge</small></div><button onClick={() => setOpen(false)} aria-label="Close chat">×</button></header>
-      <div className="chat-history" aria-live="polite">{messages.map((message, index) => <p key={index} className={message.from}>{message.text}</p>)}{typing && <p className="villager">Thinking…</p>}</div>
+    <button className="villager-button" onClick={() => setOpen((value) => !value)} aria-label={`${open ? "Close" : "Open"} portfolio guide`} aria-expanded={open}><GuideAvatar /><span className="chat-status-dot" /></button>
+    <AnimatePresence>{open && <m.aside className="chat-panel" aria-label="Ask Kartik's portfolio guide" initial={{ opacity: 0, y: 16, scale: 0.97 }} animate={{ opacity: 1, y: 0, scale: 1 }} exit={{ opacity: 0, y: 16, scale: 0.97 }} transition={{ duration: 0.18 }}>
+      <header><div className="villager-face"><GuideAvatar /></div><div><strong>Kartik AI Guide</strong><small><i /> Online · portfolio knowledge</small></div><button onClick={() => setOpen(false)} aria-label="Close chat">×</button></header>
+      <div className="chat-history" aria-live="polite">{messages.map((message, index) => <p key={index} className={message.from}>{message.text}</p>)}{typing && <p className="guide">Thinking…</p>}</div>
       <div className="quick-questions"><button onClick={() => ask("What is Kartik's experience?")}>Experience</button><button onClick={() => ask("Show me his projects")}>Projects</button><button onClick={() => ask("What are his skills?")}>Skills</button></div>
       <form onSubmit={(event) => { event.preventDefault(); ask(input); }}><label className="sr-only" htmlFor="chat-question">Ask a question</label><input id="chat-question" value={input} onChange={(event) => setInput(event.target.value)} placeholder="Ask about Kartik…" maxLength={180} /><button aria-label="Send question">➤</button></form>
-    </motion.aside>}</AnimatePresence>
+    </m.aside>}</AnimatePresence>
   </>;
 }
 
@@ -235,7 +232,7 @@ function ContactForm() {
     <label>Message<textarea name="message" required minLength={10} maxLength={2000} rows={5} /></label>
     <label className="honeypot" aria-hidden="true">Website<input name="website" tabIndex={-1} autoComplete="off" /></label>
     <button type="submit" disabled={state === "sending"}>{state === "sending" ? "Opening portal…" : "Send Message"}</button>
-    <AnimatePresence>{message && <motion.p className={`form-message ${state}`} role="status" initial={{ opacity: 0, height: 0 }} animate={{ opacity: 1, height: "auto" }} exit={{ opacity: 0, height: 0 }}>{message}</motion.p>}</AnimatePresence>
+    <AnimatePresence>{message && <m.p className={`form-message ${state}`} role="status" initial={{ opacity: 0, height: 0 }} animate={{ opacity: 1, height: "auto" }} exit={{ opacity: 0, height: 0 }}>{message}</m.p>}</AnimatePresence>
   </form>;
 }
 
@@ -272,7 +269,7 @@ export function Portfolio() {
 
   const reveal = { initial: reduce ? false : { opacity: 0, y: 24 }, whileInView: { opacity: 1, y: 0 }, viewport: { once: true, margin: "-100px" }, transition: { duration: 0.6, ease: [0.16, 1, 0.3, 1] as const } };
 
-  return <div className={`world ${theme}`} data-theme={theme} data-loaded={loaded}>
+  return <LazyMotion features={domAnimation}><div className={`world ${theme}`} data-theme={theme} data-loaded={loaded}>
     <a className="skip-link" href="#main">Skip to content</a>
     <AnimatePresence>{!loaded && <Loader onDone={finishLoading} />}</AnimatePresence>
     <ParticleCanvas theme={theme} /><PixelCursor />
@@ -281,39 +278,39 @@ export function Portfolio() {
     <main id="main">
       <WorldSection id="spawn" className="spawn">
         <div className="sky-art" aria-hidden="true"><div className="sun-moon" /><div className="stars" />{[0,1,2,3].map((cloud) => <div className={`cloud cloud-${cloud + 1}`} key={cloud}><i /><i /><i /></div>)}<div className="tree tree-one"><i /><b /></div><div className="tree tree-two"><i /><b /></div><div className="water" /></div>
-        <motion.div className="hero-content" initial={reduce ? false : "hidden"} animate={loaded ? "show" : "hidden"} variants={{ hidden: {}, show: { transition: { delayChildren: 0.2, staggerChildren: 0.12 } } }}>
+        <m.div className="hero-content" initial={reduce ? false : "hidden"} animate={loaded ? "show" : "hidden"} variants={{ hidden: {}, show: { transition: { delayChildren: 0.2, staggerChildren: 0.12 } } }}>
           {[
             <span className="hero-badge" key="badge">⌁ {profile.title} · {profile.location}</span>,
             <h1 key="name">{profile.name}</h1>,
             <p key="statement">{profile.statement}</p>,
-            <div className="hero-actions" key="actions"><PixelButton href="#projects">Explore My Work</PixelButton><PixelButton href="#contact" secondary>Get in Touch</PixelButton><PixelButton onClick={() => setResumeOpen(true)} secondary>📜 Résumé</PixelButton></div>,
+            <div className="hero-actions" key="actions"><PixelButton href="#projects">Explore My Work</PixelButton><PixelButton href="#contact" secondary>Get in Touch</PixelButton><PixelButton onClick={() => setResumeOpen(true)} secondary>📜 Resume</PixelButton></div>,
             <small className="fast-travel" key="hint">PRESS 1–6 TO FAST-TRAVEL · SCROLL TO EXPLORE <span className="pixel-scroll-arrow" aria-hidden="true" /></small>,
-          ].map((child, index) => <motion.div key={index} variants={{ hidden: { opacity: 0, y: 24 }, show: { opacity: 1, y: 0, transition: { duration: 0.6, ease: [0.16, 1, 0.3, 1] } } }}>{child}</motion.div>)}
-        </motion.div>
+          ].map((child, index) => <m.div key={index} variants={{ hidden: { opacity: 0, y: 24 }, show: { opacity: 1, y: 0, transition: { duration: 0.6, ease: [0.16, 1, 0.3, 1] } } }}>{child}</m.div>)}
+        </m.div>
         <div className="ground" aria-hidden="true" /><TerrainDivider kind="grass" />
       </WorldSection>
 
       <WorldSection id="about" className="about-zone">
-        <motion.div className="section-inner" {...reveal}><p className="eyebrow">02 · SAFEHOUSE FOUND</p><h2>The Cabin <span>About Me</span></h2><div className="cabin-roof" aria-hidden="true" /><div className="wood-panel">{profile.bio.map((paragraph) => <p key={paragraph}>{paragraph}</p>)}</div><div className="stats-grid">{profile.stats.map((stat) => <article key={stat.label}><strong>{stat.value}</strong><span>{stat.label}</span></article>)}</div></motion.div><TerrainDivider kind="stone" />
+        <m.div className="section-inner" {...reveal}><p className="eyebrow">02 · SAFEHOUSE FOUND</p><h2>The Cabin <span>About Me</span></h2><div className="cabin-roof" aria-hidden="true" /><div className="wood-panel">{profile.bio.map((paragraph) => <p key={paragraph}>{paragraph}</p>)}</div><div className="stats-grid">{profile.stats.map((stat) => <article key={stat.label}><strong>{stat.value}</strong><span>{stat.label}</span></article>)}</div></m.div><TerrainDivider kind="stone" />
       </WorldSection>
 
       <WorldSection id="experience" className="experience-zone">
-        <div className="section-inner"><p className="eyebrow">03 · QUEST LOG</p><h2>The Castle <span>Experience</span></h2><div className="experience-list">{profile.experience.map((item, index) => <motion.article className="castle-card" key={item.company} initial={reduce ? false : { opacity: 0, x: -24 }} whileInView={{ opacity: 1, x: 0 }} viewport={{ once: true, margin: "-100px" }} transition={{ duration: 0.6, delay: index * 0.15, ease: [0.16, 1, 0.3, 1] }}><div className="battlements" aria-hidden="true" /><header><div><h3>{item.role}</h3><p>{item.company} · {item.location}</p></div><time>{item.dates}</time></header><ul>{item.bullets.map((bullet) => <li key={bullet}>{bullet}</li>)}</ul><div className="tags">{item.skills.map((skill) => <span key={skill}>{skill}</span>)}</div></motion.article>)}</div><article className="education-card"><span>ACADEMY</span><div><h3>{profile.education.degree}</h3><p>{profile.education.school}</p></div></article></div><TerrainDivider kind="village" />
+        <div className="section-inner"><p className="eyebrow">03 · QUEST LOG</p><h2>The Castle <span>Experience</span></h2><div className="experience-list">{profile.experience.map((item, index) => <m.article className="castle-card" key={item.company} initial={reduce ? false : { opacity: 0, x: -24 }} whileInView={{ opacity: 1, x: 0 }} viewport={{ once: true, margin: "-100px" }} transition={{ duration: 0.6, delay: index * 0.15, ease: [0.16, 1, 0.3, 1] }}><div className="battlements" aria-hidden="true" /><header><div><h3>{item.role}</h3><p>{item.company} · {item.location}</p></div><time>{item.dates}</time></header><ul>{item.bullets.map((bullet) => <li key={bullet}>{bullet}</li>)}</ul><div className="tags">{item.skills.map((skill) => <span key={skill}>{skill}</span>)}</div></m.article>)}</div><article className="education-card"><span>ACADEMY</span><div><h3>{profile.education.degree}</h3><p>{profile.education.school}</p></div></article></div><TerrainDivider kind="village" />
       </WorldSection>
 
       <WorldSection id="projects" className="projects-zone">
-        <motion.div className="section-inner" {...reveal}><p className="eyebrow">04 · BUILDS DISCOVERED</p><h2>The Village <span>Projects</span></h2><div className="project-grid">{profile.projects.map((project) => <article className={`project-card ${project.color}`} key={project.name}><div className="building-roof" aria-hidden="true" /><div className="windows" aria-hidden="true"><i /><i /><i /></div><small>{project.category}</small><h3>{project.name}</h3><p>{project.description}</p><div className="tags">{project.technologies.map((tech) => <span key={tech}>{tech}</span>)}</div><div className="project-links"><a href={project.live} target="_blank" rel="noreferrer">View Project ↗</a>{project.source && <a href={project.source} target="_blank" rel="noreferrer">Source ↗</a>}</div></article>)}</div></motion.div><TerrainDivider kind="mine" />
+        <m.div className="section-inner" {...reveal}><p className="eyebrow">04 · BUILDS DISCOVERED</p><h2>The Village <span>Projects</span></h2><div className="project-grid">{profile.projects.map((project) => <article className={`project-card ${project.color}`} key={project.name}><div className="building-roof" aria-hidden="true" /><div className="windows" aria-hidden="true"><i /><i /><i /></div><small>{project.category}</small><h3>{project.name}</h3><p>{project.description}</p><div className="tags">{project.technologies.map((tech) => <span key={tech}>{tech}</span>)}</div><div className="project-links"><a href={project.live} target="_blank" rel="noreferrer">View Project ↗</a>{project.source && <a href={project.source} target="_blank" rel="noreferrer">Source ↗</a>}</div></article>)}</div></m.div><TerrainDivider kind="mine" />
       </WorldSection>
 
       <WorldSection id="skills" className="skills-zone">
-        <div className="ore-field" aria-hidden="true">{Array.from({ length: 18 }, (_, index) => <i key={index} />)}</div><div className="section-inner"><p className="eyebrow">05 · DEPTH: -58 · TORCHES LIT</p><h2>The Mine <span>Skills</span></h2><div className="skills-grid">{profile.skills.map((category, index) => <motion.article className={`skill-panel ${category.color}`} key={category.name} initial={reduce ? false : { opacity: 0, y: 24 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} transition={{ duration: 0.6, delay: index * 0.1 }}><small>{category.color} VEIN</small><h3>{category.name}</h3><div className="ore-chips">{category.items.map((skill) => <span key={skill}><i />{skill}</span>)}</div></motion.article>)}</div></div><TerrainDivider kind="portal" />
+        <div className="ore-field" aria-hidden="true">{Array.from({ length: 18 }, (_, index) => <i key={index} />)}</div><div className="section-inner"><p className="eyebrow">05 · DEPTH: -58 · TORCHES LIT</p><h2>The Mine <span>Skills</span></h2><div className="skills-grid">{profile.skills.map((category, index) => <m.article className={`skill-panel ${category.color}`} key={category.name} initial={reduce ? false : { opacity: 0, y: 24 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} transition={{ duration: 0.6, delay: index * 0.1 }}><small>{category.color} VEIN</small><h3>{category.name}</h3><div className="ore-chips">{category.items.map((skill) => <span key={skill}><i />{skill}</span>)}</div></m.article>)}</div></div><TerrainDivider kind="portal" />
       </WorldSection>
 
       <WorldSection id="contact" className="contact-zone">
-        <motion.div className="section-inner contact-inner" {...reveal}><p className="eyebrow">06 · FINAL WAYPOINT</p><h2>The Portal <span>Contact</span></h2><p className="contact-copy">Have a people, benefits, or product problem worth solving? Step through. I’d love to hear about it.</p><div className="contact-grid"><ContactForm /><aside className="contact-links"><p>Prefer a direct route?</p><a href={`mailto:${profile.email}`}><span>✉</span><div><small>Email</small>{profile.email}</div></a><a href={profile.linkedin} target="_blank" rel="noreferrer"><span>in</span><div><small>LinkedIn</small>Kartik Sharma</div></a><a href={profile.github} target="_blank" rel="noreferrer"><span>⌘</span><div><small>GitHub</small>@Kartik2004sharma</div></a></aside></div></motion.div>
+        <m.div className="section-inner contact-inner" {...reveal}><p className="eyebrow">06 · FINAL WAYPOINT</p><h2>The Portal <span>Contact</span></h2><p className="contact-copy">Have a people, benefits, or product problem worth solving? Step through. I’d love to hear about it.</p><div className="contact-grid"><ContactForm /><aside className="contact-links"><p>Prefer a direct route?</p><a href={`mailto:${profile.email}`}><span>✉</span><div><small>Email</small>{profile.email}</div></a><a href={profile.linkedin} target="_blank" rel="noreferrer"><span>in</span><div><small>LinkedIn</small>Kartik Sharma</div></a><a href={profile.github} target="_blank" rel="noreferrer"><span>⌘</span><div><small>GitHub</small>@Kartik2004sharma</div></a></aside></div></m.div>
       </WorldSection>
     </main>
     <footer><div className="torch" aria-hidden="true"><i /><b /></div><strong>REST HERE, TRAVELER</strong><p>{profile.title} building thoughtful experiences, block by block.</p><nav aria-label="Footer navigation">{sections.slice(1).map(([id, label]) => <a key={id} href={`#${id}`}>{label.replace("The ", "")}</a>)}</nav><small>© {new Date().getFullYear()} Kartik Sharma · Crafted block by block</small></footer>
     <VillagerChat /><ResumeModal open={resumeOpen} close={() => setResumeOpen(false)} />
-  </div>;
+  </div></LazyMotion>;
 }
